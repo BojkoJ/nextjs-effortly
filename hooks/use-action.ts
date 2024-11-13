@@ -24,14 +24,14 @@ export const useAction = <TInput, TOutput>(
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const execute = useCallback(
-		async (input: TInput) => {
+		async (input: TInput): Promise<ActionState<TInput, TOutput>> => {
 			setIsLoading(true);
 
 			try {
 				const result = await action(input);
 
 				if (!result) {
-					return;
+					return { error: "No result returned" };
 				}
 
 				setFieldErrors(result.fieldErrors);
@@ -45,6 +45,8 @@ export const useAction = <TInput, TOutput>(
 					setData(result.data);
 					options.onSuccess?.(result.data);
 				}
+
+				return result; // Vrátíme výsledek, aby bylo možné jej přímo využít
 			} finally {
 				setIsLoading(false);
 				options.onComplete?.();

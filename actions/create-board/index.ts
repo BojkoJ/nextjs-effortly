@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { CreateBoard } from "./schema";
+import pusher from "@/lib/pusher";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
 	const { userId, orgId } = auth();
@@ -52,6 +53,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 			error: "Failed to create.",
 		};
 	}
+
+	await pusher.trigger(`organization-${orgId}-channel`, "board-created", {
+		boardId: board.id,
+	});
 
 	revalidatePath(`/board/${board.id}`);
 

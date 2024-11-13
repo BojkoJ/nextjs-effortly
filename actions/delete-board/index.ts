@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { DeleteBoard } from "./schema";
 import { redirect } from "next/navigation";
+import pusher from "@/lib/pusher";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
 	const { userId, orgId, orgRole } = auth();
@@ -39,6 +40,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 			error: "Failed to delete",
 		};
 	}
+
+	await pusher.trigger(`organization-${orgId}-channel`, "board-deleted", {
+		boardId: id,
+	});
 
 	revalidatePath(`/organization/${orgId}`);
 	redirect(`/organization/${orgId}`);
