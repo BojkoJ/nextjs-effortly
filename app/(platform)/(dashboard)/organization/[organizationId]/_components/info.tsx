@@ -6,7 +6,7 @@ import { CreditCard, UserCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface InfoProps {
-	role: string | null | undefined;
+	role?: string | null | undefined;
 }
 
 export const Info = ({ role }: InfoProps) => {
