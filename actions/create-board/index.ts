@@ -9,11 +9,17 @@ import { CreateBoard } from "./schema";
 import pusher from "@/lib/pusher";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-	const { userId, orgId } = auth();
+	const { userId, orgId, orgRole } = auth();
 
 	if (!userId || !orgId) {
 		return {
 			error: "Unathorized",
+		};
+	}
+
+	if (orgRole !== "org:admin") {
+		return {
+			error: "Only administrator of organization can create boards.",
 		};
 	}
 
