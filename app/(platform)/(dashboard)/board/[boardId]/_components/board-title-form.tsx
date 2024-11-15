@@ -1,18 +1,55 @@
 "use client";
 
+import { getBoard } from "@/actions/get-board";
 import { updateBoard } from "@/actions/update-board";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
 import { Board } from "@prisma/client";
-import { ElementRef, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Pusher from "pusher-js";
+import { ElementRef, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface BoardTitleFormProps {
 	data: Board;
+	orgId: string | null | undefined;
 }
 
-export const BoardTitleForm = ({ data }: BoardTitleFormProps) => {
+export const BoardTitleForm = ({ data, orgId }: BoardTitleFormProps) => {
+	const router = useRouter();
+
+	const [board, setBoard] = useState(data);
+
+	const { execute: getOneBoard } = useAction(getBoard);
+
+	useEffect(() => {
+		const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+			cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+		});
+
+		const channel = pusher.subscribe(`organization-${orgId}-channel`);
+
+		channel.bind("board-deleted", async () => {
+			router.push(`/organization/${orgId}`);
+		});
+
+		channel.bind("board-updated", async () => {
+			const result = await getOneBoard({});
+			if (result.data) {
+				setBoard(result.data);
+				setTitle(result.data.title);
+			} else if (result.error) {
+				toast.error("Failed to refresh boards");
+			}
+		});
+
+		return () => {
+			channel.unbind_all();
+			channel.unsubscribe();
+		};
+	}, [orgId, getOneBoard, router]);
+
 	const { execute } = useAction(updateBoard, {
 		onSuccess: (data) => {
 			toast.success(`Board ${data?.title} updated`);
@@ -32,7 +69,7 @@ export const BoardTitleForm = ({ data }: BoardTitleFormProps) => {
 	const formRef = useRef<ElementRef<"form">>(null);
 	const inputRef = useRef<ElementRef<"input">>(null);
 
-	const [title, setTitle] = useState(data.title);
+	const [title, setTitle] = useState(board.title);
 	const [isEditing, setIsEditing] = useState(false);
 
 	const enableEditing = () => {
@@ -52,7 +89,7 @@ export const BoardTitleForm = ({ data }: BoardTitleFormProps) => {
 		const title = formData.get("title") as string;
 		execute({
 			title: title,
-			id: data.id,
+			id: board.id,
 		});
 	};
 

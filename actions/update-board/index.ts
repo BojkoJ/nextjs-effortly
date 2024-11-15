@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { UpdateBoard } from "./schema";
+import pusher from "@/lib/pusher";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
 	const { userId, orgId, orgRole } = auth();
@@ -41,6 +42,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 			error: "Failed to update",
 		};
 	}
+
+	await pusher.trigger(`organization-${orgId}-channel`, "board-updated", {
+		boardId: id,
+	});
 
 	revalidatePath(`/board/${id}`);
 
