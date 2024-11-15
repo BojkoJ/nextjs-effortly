@@ -5,7 +5,8 @@ import { InputType, ReturnType } from "./types";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { createSafeAction } from "@/lib/create-safe-action";
-import { CreateList } from "./schema";
+import { CopyList } from "./schema";
+import { orderBy } from "lodash";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
 	const { userId, orgId } = auth();
@@ -16,45 +17,60 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 		};
 	}
 
-	const { title, boardId } = data;
+	const { id, boardId } = data;
 
 	let list;
 
 	try {
-		const board = await db.board.findUnique({
+		const listToCopy = await db.list.findUnique({
 			where: {
-				id: boardId,
+				id: id,
+				boardId: boardId,
+				board: {
+					orgId: orgId,
+				},
+			},
+			include: {
+				cards: true,
 			},
 		});
 
-		if (!board) {
+		if (!listToCopy) {
 			return {
-				error: "Board not found",
+				error: "List not found",
 			};
 		}
 
 		const lastList = await db.list.findFirst({
-			where: {
-				boardId: boardId,
-			},
+			where: { boardId: boardId },
 			orderBy: { order: "desc" },
-			select: {
-				order: true,
-			},
+			select: { order: true },
 		});
 
 		const newOrder = lastList ? lastList.order + 1 : 1;
 
 		list = await db.list.create({
 			data: {
-				title: title,
-				boardId: boardId,
+				boardId: listToCopy.boardId,
+				title: `${listToCopy.title} - Copy`,
 				order: newOrder,
+				cards: {
+					createMany: {
+						data: listToCopy.cards.map((card) => ({
+							title: card.title,
+							order: card.order,
+							description: card.description,
+						})),
+					},
+				},
+			},
+			include: {
+				cards: true,
 			},
 		});
 	} catch (error) {
 		return {
-			error: "Failed to create a list",
+			error: "Failed to copy",
 		};
 	}
 
@@ -63,4 +79,4 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 	return { data: list };
 };
 
-export const createList = createSafeAction(CreateList, handler);
+export const copyList = createSafeAction(CopyList, handler);
