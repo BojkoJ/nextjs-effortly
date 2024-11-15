@@ -18,7 +18,7 @@ export const Logo = () => {
 						headingFont.className
 					)}
 				>
-					Taskflow
+					Effortly
 				</p>
 			</div>
 		</Link>
