@@ -37,7 +37,7 @@ https://effortly.vercel.app
 -   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=
 -   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=
 -   DATABASE_URL=
--   DIRECT_URL
+-   DIRECT_URL=
 -   NEXT_PUBLIC_UNSPLASH_ACCESS_KEY=
 -   STRIPE_API_KEY=
 -   NEXT_PUBLIC_APP_URL=
@@ -52,10 +52,11 @@ https://effortly.vercel.app
 #### 1) Add Postgres databse (e.g. Neon, Supabase)
 
 `npx prisma generate`
+
 `npx prisma db push`
 
 #### 2) Start the app:
 
 `npm run dev`
 
-App now runs on http://localhost:3000
+App now runs on `http://localhost:3000`
