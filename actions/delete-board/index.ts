@@ -8,11 +8,11 @@ import { createSafeAction } from "@/lib/create-safe-action";
 import { DeleteBoard } from "./schema";
 import { redirect } from "next/navigation";
 import pusher from "@/lib/pusher";
-import { ACTION, ENTITY_TYPE } from "@prisma/client";
+import { ACTION, ENTITY_TYPE } from "@/lib/generated/prisma/enums";
 import { createAuditLog } from "@/lib/create-audit-log";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-	const { userId, orgId, orgRole } = auth();
+	const { userId, orgId, orgRole } = await auth();
 
 	if (!userId || !orgId) {
 		return {

@@ -1,4 +1,4 @@
-import { AuditLog } from "@prisma/client";
+import type { AuditLog } from "@/lib/generated/prisma/client";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { generateLogMessage } from "@/lib/generate-log-message";
 import { format } from "date-fns";

@@ -8,7 +8,7 @@ import { fetcher } from "@/lib/fetcher";
 import { Header } from "./header";
 import { Description } from "./description";
 import { Actions } from "./actions";
-import { AuditLog } from "@prisma/client";
+import type { AuditLog } from "@/lib/generated/prisma/client";
 import { Activity } from "./activity";
 
 export const CardModal = () => {

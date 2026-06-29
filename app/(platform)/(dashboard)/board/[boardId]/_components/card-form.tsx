@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
 import { Plus, X } from "lucide-react";
 import { useParams } from "next/navigation";
-import { ElementRef, forwardRef, KeyboardEventHandler, useRef } from "react";
+import {
+	ElementRef,
+	forwardRef,
+	KeyboardEventHandler,
+	RefObject,
+	useRef,
+} from "react";
 import { toast } from "sonner";
 import { useEventListener, useOnClickOutside } from "usehooks-ts";
 
@@ -39,7 +45,7 @@ export const CardForm = forwardRef<HTMLTextAreaElement, CardFormProps>(
 			}
 		};
 
-		useOnClickOutside(formRef, disableEditing);
+		useOnClickOutside(formRef as RefObject<HTMLElement>, disableEditing);
 
 		useEventListener("keydown", onKeyDown);
 

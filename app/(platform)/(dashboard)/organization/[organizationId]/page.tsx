@@ -5,7 +5,7 @@ import { BoardListContainer } from "./_components/board-list-container";
 import { auth } from "@clerk/nextjs/server";
 
 const OrganizationIdPage = async () => {
-	const { orgRole } = auth();
+	const { orgRole } = await auth();
 
 	return (
 		<div className="w-full mb-20">

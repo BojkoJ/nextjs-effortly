@@ -2,7 +2,7 @@
 
 import { Plus, X } from "lucide-react";
 import { ListWrapper } from "./list-wrapper";
-import { useState, useRef, ElementRef } from "react";
+import { useState, useRef, ElementRef, RefObject } from "react";
 import { useEventListener, useOnClickOutside } from "usehooks-ts";
 import { FormInput } from "@/components/form/form-input";
 import { useParams, useRouter } from "next/navigation";
@@ -52,7 +52,7 @@ export const ListForm = () => {
 
 	useEventListener("keydown", onKeyDown);
 
-	useOnClickOutside(formRef, disableEditing);
+	useOnClickOutside(formRef as RefObject<HTMLElement>, disableEditing);
 
 	const onSubmit = (formData: FormData) => {
 		const title = formData.get("title") as string;

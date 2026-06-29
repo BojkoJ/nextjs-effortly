@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 
-import { unsplash } from "@/lib/unsplash";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-// 18 images to choose from (just for development) - to save api calls (they are limited per hour)
+// 18 images to choose from – cached locally to avoid spending the limited
+// Unsplash API quota. (Live fetching can be re-added via unsplash-js v8's
+// `unsplash.GET("/photos/random", …)` openapi-fetch API if needed.)
 import { defaultImages } from "@/constants/images";
 import Link from "next/link";
 import { FormErrors } from "./form-errors";
@@ -19,55 +20,15 @@ interface FormPickerProps {
 }
 
 export const FormPicker = ({ id, errors }: FormPickerProps) => {
-	// Pick random 9 images from 18 default images
-	const defaultImagesRandomized = defaultImages
-		.sort(() => Math.random() - 0.5)
-		.slice(0, 9);
-
 	const { pending } = useFormStatus();
 
-	const [images, setImages] = useState<Array<Record<string, any>>>([
-		defaultImagesRandomized,
-	]);
-	const [isLoading, setIsLoading] = useState<boolean>(true);
-	const [selectedImageId, setSelectedImageId] = useState(null);
+	// Pick a stable random set of 9 images from the 18 defaults.
+	const images = useMemo(
+		() => defaultImages.sort(() => Math.random() - 0.5).slice(0, 9),
+		[]
+	);
 
-	useEffect(() => {
-		const fetchImages = async () => {
-			try {
-				throw new Error("fabricated error");
-
-				const result = await unsplash.photos.getRandom({
-					collectionIds: ["317099"],
-					count: 9,
-				});
-
-				if (result && result.response) {
-					const newImages = result.response as Array<
-						Record<string, any>
-					>;
-					setImages(newImages);
-				} else {
-					console.error("Failed to get images from Unsplash");
-				}
-			} catch (error) {
-				console.log(error);
-				setImages(defaultImagesRandomized);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchImages();
-	}, []);
-
-	if (isLoading) {
-		return (
-			<div className='p-6 flex items-center justify-center'>
-				<Loader2 className='h-6 w-6 text-sky-700 animate-spin' />
-			</div>
-		);
-	}
+	const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
 
 	return (
 		<div className='relative'>

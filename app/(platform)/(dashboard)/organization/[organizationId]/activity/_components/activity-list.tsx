@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export const ActivityList = async () => {
-	const { orgId } = auth();
+	const { orgId } = await auth();
 
 	if (!orgId) {
 		redirect("/select-org");

@@ -1,5 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { ACTION, ENTITY_TYPE } from "@prisma/client";
+import { ACTION, ENTITY_TYPE } from "@/lib/generated/prisma/enums";
 import { db } from "./db";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 
 export const createAuditLog = async (props: Props) => {
 	try {
-		const { orgId } = auth();
+		const { orgId } = await auth();
 
 		const user = await currentUser();
 

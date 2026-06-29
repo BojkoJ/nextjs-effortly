@@ -1,26 +1,24 @@
-import {
-	clerkMiddleware,
-	createRouteMatcher,
-	redirectToSignIn,
-} from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/"]);
 
-export default clerkMiddleware((auth, request) => {
+export default clerkMiddleware(async (auth, request) => {
+	const { userId, orgId, redirectToSignIn } = await auth();
+
 	if (!isPublicRoute(request)) {
-		auth().protect();
+		await auth.protect();
 	}
 
-	if (auth().userId && isPublicRoute(request)) {
+	if (userId && isPublicRoute(request)) {
 		// Pokud je user přihlášený a chce se dostat na landing page:
 		// Přesměruj ho na výběr organizace
 		let path = "/select-org";
 
-		if (auth().orgId) {
+		if (orgId) {
 			// Pokud je user přihlášený a má vybranou organizaci:
 			// Přesměruj ho na jeho organizaci
-			path = `/organization/${auth().orgId}`;
+			path = `/organization/${orgId}`;
 		}
 
 		const orgSelection = new URL(path, request.url);
@@ -28,16 +26,12 @@ export default clerkMiddleware((auth, request) => {
 	}
 
 	// User není přihlášený a chce se dostat na protected routu
-	if (!auth() && !isPublicRoute(request)) {
-		return auth().redirectToSignIn({ returnBackUrl: request.url });
+	if (!userId && !isPublicRoute(request)) {
+		return redirectToSignIn({ returnBackUrl: request.url });
 	}
 
 	// User je přihlášený a nemá vybranou organizaci a není na routě pro výběr organizace (/select-org)
-	if (
-		auth().userId &&
-		!auth().orgId &&
-		request.nextUrl.pathname !== "/select-org"
-	) {
+	if (userId && !orgId && request.nextUrl.pathname !== "/select-org") {
 		const orgSelection = new URL("/select-org", request.url);
 		return NextResponse.redirect(orgSelection);
 	}

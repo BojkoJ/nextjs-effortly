@@ -5,7 +5,7 @@ import { updateBoard } from "@/actions/update-board";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
-import { Board } from "@prisma/client";
+import type { Board } from "@/lib/generated/prisma/client";
 import { useRouter } from "next/navigation";
 import Pusher from "pusher-js";
 import { ElementRef, useEffect, useRef, useState } from "react";

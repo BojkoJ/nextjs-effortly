@@ -5,7 +5,7 @@ import { BoardListClient } from "./board-list-client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const BoardListContainer = async () => {
-	const { orgId } = auth();
+	const { orgId } = await auth();
 
 	if (!orgId) {
 		return redirect("/select-org");

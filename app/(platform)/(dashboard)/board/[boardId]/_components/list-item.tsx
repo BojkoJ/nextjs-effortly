@@ -2,7 +2,7 @@
 
 import { ListWithCards } from "@/types/lists";
 import { ListHeader } from "./list-header";
-import { ElementRef, useRef, useState } from "react";
+import { CSSProperties, ElementRef, useRef, useState } from "react";
 import { CardForm } from "./card-form";
 import { cn } from "@/lib/utils";
 import { CardItem } from "./card-item";
@@ -31,10 +31,13 @@ export const ListItem = ({ data, index }: ListItemProps) => {
 
 	return (
 		<Draggable draggableId={data.id} index={index}>
-			{(provided) => (
+			{(provided) => {
+				const { style, ...draggableProps } = provided.draggableProps;
+				return (
 				<li
-					{...provided.draggableProps}
+					{...draggableProps}
 					ref={provided.innerRef}
+					style={style as CSSProperties}
 					className="shrink-0 h-full w-[272px] select-none"
 				>
 					<div
@@ -72,7 +75,8 @@ export const ListItem = ({ data, index }: ListItemProps) => {
 						/>
 					</div>
 				</li>
-			)}
+				);
+			}}
 		</Draggable>
 	);
 };

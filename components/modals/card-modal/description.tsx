@@ -10,7 +10,7 @@ import { CardWithList } from "@/types/lists";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlignLeft } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState, useRef, ElementRef } from "react";
+import { useState, useRef, ElementRef, RefObject } from "react";
 import { toast } from "sonner";
 import { useEventListener, useOnClickOutside } from "usehooks-ts";
 
@@ -45,7 +45,7 @@ export const Description = ({ data }: DescriptionProps) => {
 	};
 
 	useEventListener("keydown", onKeyDown);
-	useOnClickOutside(formRef, disableEditing);
+	useOnClickOutside(formRef as RefObject<HTMLElement>, disableEditing);
 
 	const { execute, fieldErrors } = useAction(updateCard, {
 		onSuccess: (data) => {
